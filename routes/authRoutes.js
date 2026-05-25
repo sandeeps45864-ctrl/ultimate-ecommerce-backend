@@ -1,47 +1,71 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+
+import User from "../models/user.js";
 
 const router = express.Router();
 
 
-// REGISTER
-router.post("/register", async (req, res) => {
+// ================= SIGNUP =================
+
+router.post("/signup", async (req, res) => {
 
   try {
 
     const { name, email, password } = req.body;
 
-    const userExist = await User.findOne({ email });
+    // CHECK USER EXISTS
 
-    if(userExist){
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
       return res.status(400).json({
-        message: "User already exists"
+        success: false,
+        message: "User already exists",
       });
     }
 
     // HASH PASSWORD
-    const salt = await bcrypt.genSalt(10);
 
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // CREATE USER
-    const user = await User.create({
+
+    const newUser = new User({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
+    await newUser.save();
+
+    // JWT TOKEN
+
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.status(201).json({
-      message: "User Registered Successfully",
-      user
+      success: true,
+      message: "Signup Successful",
+      token,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
     });
 
   } catch (error) {
 
+    console.log(error);
+
     res.status(500).json({
-      message: error.message
+      success: false,
+      message: "Server Error",
     });
 
   }
@@ -49,28 +73,37 @@ router.post("/register", async (req, res) => {
 });
 
 
-// LOGIN
+// ================= LOGIN =================
+
 router.post("/login", async (req, res) => {
 
   try {
 
     const { email, password } = req.body;
 
+    // FIND USER
+
     const user = await User.findOne({ email });
 
-    if(!user){
+    if (!user) {
       return res.status(400).json({
-        message: "User not found"
+        success: false,
+        message: "User not found",
       });
     }
+
+    // CHECK PASSWORD
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if(!isMatch){
+    if (!isMatch) {
       return res.status(400).json({
-        message: "Invalid Password"
+        success: false,
+        message: "Invalid Password",
       });
     }
+
+    // JWT TOKEN
 
     const token = jwt.sign(
       { id: user._id },
@@ -79,15 +112,23 @@ router.post("/login", async (req, res) => {
     );
 
     res.status(200).json({
-      message: "Login Success",
+      success: true,
+      message: "Login Successful",
       token,
-      user
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
     });
 
   } catch (error) {
 
+    console.log(error);
+
     res.status(500).json({
-      message: error.message
+      success: false,
+      message: "Server Error",
     });
 
   }

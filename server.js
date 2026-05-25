@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import orderRoutes from "./routes/orderRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 app.use("/api/orders", orderRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Ultimate Ecommerce Backend Running");
