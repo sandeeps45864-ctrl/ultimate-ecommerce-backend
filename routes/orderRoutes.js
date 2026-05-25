@@ -1,5 +1,5 @@
 import express from "express";
-import Order from "../models/orderModel.js";
+import Order from "../models/Order.js";
 
 const router = express.Router();
 
@@ -7,34 +7,46 @@ router.post("/", async (req, res) => {
 
   try {
 
-    console.log("BODY:", req.body);
+    const { products, totalPrice } = req.body;
 
     const newOrder = new Order({
-      products: req.body.products,
-      totalPrice: req.body.totalPrice,
+      products,
+      totalPrice,
     });
 
-    console.log("Before Save");
-
-    const savedOrder = await newOrder.save();
-
-    console.log("After Save");
-    console.log(savedOrder);
+    await newOrder.save();
 
     res.status(201).json({
       success: true,
       message: "Order Saved",
-      order: savedOrder,
+      order: newOrder,
     });
 
   } catch (error) {
 
-    console.log("SAVE ERROR:");
     console.log(error);
 
     res.status(500).json({
       success: false,
-      error: error.message,
+      message: "Server Error",
+    });
+
+  }
+
+});
+
+router.get("/", async (req, res) => {
+
+  try {
+
+    const orders = await Order.find();
+
+    res.json(orders);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: "Server Error",
     });
 
   }
