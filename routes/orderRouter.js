@@ -3,33 +3,46 @@ import Order from "../models/Order.js";
 
 const router = express.Router();
 
-router.post("/save-order", async (req, res) => {
-
+// CREATE ORDER
+router.post("/", async (req, res) => {
   try {
-
-    const { products, total } = req.body;
+    const { products, totalPrice } = req.body;
 
     const newOrder = new Order({
       products,
-      total
+      totalPrice,
     });
 
     await newOrder.save();
 
-    res.json({
+    res.status(201).json({
       success: true,
-      message: "Order Saved"
+      message: "Order Saved Successfully",
+      order: newOrder,
     });
-
   } catch (error) {
+    console.log(error);
 
     res.status(500).json({
       success: false,
-      message: error.message
+      message: "Server Error",
     });
-
   }
+});
 
+// GET ALL ORDERS
+router.get("/", async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    res.json(orders);
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
 });
 
 export default router;
