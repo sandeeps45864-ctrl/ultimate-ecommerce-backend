@@ -1,29 +1,26 @@
-import express from "express";
-import Order from "../models/Order.js";
-
+const express = require("express");
 const router = express.Router();
 
-// CREATE ORDER
-router.post("/", async (req, res) => {
+const Order = require("../models/Order");
 
+router.post("/", async (req, res) => {
   try {
 
     console.log(req.body);
 
-    const { products, totalPrice } = req.body;
-
     const newOrder = new Order({
-      products,
-      totalPrice,
+      products: req.body.products,
+      totalPrice: req.body.totalPrice,
     });
 
-    // SAVE IN MONGODB
-    await newOrder.save();
+    const savedOrder = await newOrder.save();
+
+    console.log("Saved:", savedOrder);
 
     res.status(201).json({
       success: true,
-      message: "Order Saved Successfully",
-      order: newOrder,
+      message: "Order Saved",
+      order: savedOrder,
     });
 
   } catch (error) {
@@ -36,28 +33,6 @@ router.post("/", async (req, res) => {
     });
 
   }
-
 });
 
-// GET ORDERS
-router.get("/", async (req, res) => {
-
-  try {
-
-    const orders = await Order.find();
-
-    res.json(orders);
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      message: "Server Error",
-    });
-
-  }
-
-});
-
-export default router;
+module.exports = router;

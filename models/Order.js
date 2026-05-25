@@ -1,21 +1,13 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema(
-  {
-    products: [
-      {
-        name: String,
-        price: Number,
-      },
-    ],
+const orderSchema = new mongoose.Schema({
+  products: [
+    {
+      name: String,
+      price: Number,
+    },
+  ],
+  totalPrice: Number,
+}, { timestamps: true });
 
-    totalPrice: Number,
-  },
-  {
-    timestamps: true,
-  }
-);
-
-const Order = mongoose.model("Order", orderSchema);
-
-export default Order;
+module.exports = mongoose.model("Order", orderSchema);
