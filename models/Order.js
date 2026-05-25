@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
     }
   ],
 
-  totalPrice: Number,
+  total: Number,
 
   createdAt: {
     type: Date,
@@ -18,6 +18,4 @@ const orderSchema = new mongoose.Schema({
 
 });
 
-const Order = mongoose.model("Order", orderSchema);
-
-export default Order;
+export default mongoose.model("Order", orderSchema);
