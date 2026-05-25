@@ -5,7 +5,11 @@ const router = express.Router();
 
 // CREATE ORDER
 router.post("/", async (req, res) => {
+
   try {
+
+    console.log(req.body);
+
     const { products, totalPrice } = req.body;
 
     const newOrder = new Order({
@@ -13,6 +17,7 @@ router.post("/", async (req, res) => {
       totalPrice,
     });
 
+    // SAVE IN MONGODB
     await newOrder.save();
 
     res.status(201).json({
@@ -20,29 +25,39 @@ router.post("/", async (req, res) => {
       message: "Order Saved Successfully",
       order: newOrder,
     });
+
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
       success: false,
       message: "Server Error",
     });
+
   }
+
 });
 
-// GET ALL ORDERS
+// GET ORDERS
 router.get("/", async (req, res) => {
+
   try {
+
     const orders = await Order.find();
 
     res.json(orders);
+
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
       message: "Server Error",
     });
+
   }
+
 });
 
 export default router;
